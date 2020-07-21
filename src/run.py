@@ -8,36 +8,94 @@ from tkinter import ttk
 
 
 class City:
-    def __init__(self):
-        self.entry_for_city = None
+    def __init__(self, entry):
+        self.entry_for_city = entry
         self.label_for_city = None
+
+class Keystring:
+    def __init__(self, entry):
+        self.entry_for_keystring = entry
+        self.label_for_keystring = None
 
 class App:
     def __init__(self):
         self.root = tk.Tk()
+        self.root.title("Phrase Maker")
 
         self.frame = ttk.Frame(self.root, padding=20)
-        self.frame.grid()        
-         
-        self.string_lbl = tk.Label(self.root, text="String:")
-        self.string_lbl.grid(row=0, column=0)
+        self.frame.grid()
 
-        self.keyword_lbl = tk.Label(self.root, text="Keyword:")
+        # Left Phrase Label
+        self.phrase_lbl = ttk.Label(self.frame, text="Phrase:")
+        self.phrase_lbl.grid(row=0, column=0)
+
+        # Left Phrase Entry
+        self.phrase_ent = ttk.Entry(self.frame)
+        self.phrase_ent.grid(row=0, column=1)
+
+        # Right City Label
+        self.city_lbl = ttk.Label(self.frame, text="City:")
+        self.city_lbl.grid(row=0, column=2)
+
+        # Right City Entry
+        self.city_ent = ttk.Entry(self.frame)
+        self.city_ent.grid(row=0, column=3)
+
+        # Left Keyword Label
+        self.keyword_lbl = ttk.Label(self.frame, text="Keyword:")
         self.keyword_lbl.grid(row=1, column=0)
 
-        self.string_ent = tk.Entry(self.root)
-        self.string_ent.grid(row=0, column=1)
-
-        self.keyword_ent = tk.Entry(self.root)
+        # Left Keyword Entry
+        self.keyword_ent = ttk.Entry(self.frame)
         self.keyword_ent.grid(row=1, column=1)
 
+        # Right Add Button
+        self.add_btn = ttk.Button(self.frame, text='Add')
+        self.add_btn.grid(row=1, column=2)
+        self.add_btn['command'] = lambda: self.add_city(self.city_ent)
         
+        # Right Delete Button
+        self.delete_btn = ttk.Button(self.frame, text='Clear')
+        self.delete_btn.grid(row=1, column=3)
+        self.delete_btn['command'] = lambda: self.delete()        
+
+        # Left Reset Button
+        self.reset_btn = ttk.Button(self.frame, text='Reset')
+        self.reset_btn.grid(row=2, column=0)
+        self.reset_btn['command'] = lambda: self.reset_app()
+
+        # Left Create Button
+        self.create_btn = ttk.Button(self.frame, text='Create')
+        self.create_btn.grid(row=2, column=1)
+        self.create_btn['command'] = lambda: self.create_txt()        
+
+        # Right Listbox
+        self.city_lbx = tk.Listbox(self.frame)
+        self.city_lbx.grid(row=2, column=2, columnspan=2)
+
+        # Right Clear Button
+        self.clear_btn = ttk.Button(self.frame, text='Clear')
+        self.clear_btn.grid(row=3, column=3)
+        self.clear_btn['command'] = lambda: self.clear()
+
+    def add_city(self, city):
+        #self.city_lbx.insert(END, item)        
+        pass
+
+    def create_txt(self):
+        pass
+
+    def clear(self):
+        pass
+
+    def reset_app(self):
+        pass
+
+    def delete(self):
+        pass    
 
     def run(self):
         self.root.mainloop()
-
-
-
 
 
 
