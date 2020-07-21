@@ -3,132 +3,141 @@
 Is a gui with two columns [Strings, Cities] and two buttons [Reset, Concat]. Creates phrases usings the same defined strings for each city.
 """
 
+import sys
+import os
+import datetime as dt
+
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
+import re
 
 
-class City:
-    def __init__(self, entry):
-        self.entry_for_city = entry
-        self.label_for_city = None
+class App (ttk.Frame):
+    def __init__(self, master=None):
+        """On Start."""
+        ttk.Frame.__init__(self, master=None, padding=20)
+        self.grid()
+        self.createWidgets()
 
-class Keystring:
-    def __init__(self, entry):
-        self.entry_for_keystring = entry
-        self.label_for_keystring = None
+    def createWidgets(self):
+        """Creates the GUI with grid."""
 
-class App:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("Phrase Maker")
-
-        self.frame = ttk.Frame(self.root, padding=20)
-        self.frame.grid()
-
-        # Left Phrase Label
-        self.phrase_lbl = ttk.Label(self.frame, text="Phrase:")
+        # Phrase Label
+        self.phrase_lbl = ttk.Label(self, text="Phrase:", style="TLabel")
         self.phrase_lbl.grid(row=0, column=0)
 
-        # Left Phrase Entry
-        self.phrase_ent = ttk.Entry(self.frame)
+        # Phrase Entry
+        self.phrase_ent = ttk.Entry(self)
         self.phrase_ent.grid(row=0, column=1)
 
-        # Right City Label
-        self.city_lbl = ttk.Label(self.frame, text="City:")
+        # City Label
+        self.city_lbl = ttk.Label(self, text="City:")
         self.city_lbl.grid(row=0, column=2)
 
-        # Right City Entry
-        self.city_ent = ttk.Entry(self.frame)
+        # City Entry
+        self.city_ent = ttk.Entry(self)
         self.city_ent.grid(row=0, column=3)
 
-        # Left Keyword Label
-        self.keyword_lbl = ttk.Label(self.frame, text="Keyword:")
+        # Keyword Label
+        self.keyword_lbl = ttk.Label(self, text="Keyword:")
         self.keyword_lbl.grid(row=1, column=0)
 
-        # Left Keyword Entry
-        self.keyword_ent = ttk.Entry(self.frame)
+        # Keyword Entry
+        self.keyword_ent = ttk.Entry(self)
         self.keyword_ent.grid(row=1, column=1)
 
-        # Right Add Button
-        self.add_btn = ttk.Button(self.frame, text='Add')
+        # Add Button
+        self.add_btn = ttk.Button(self, text="Add")
         self.add_btn.grid(row=1, column=2)
-        self.add_btn['command'] = lambda: self.add_city(self.city_ent)
+        self.add_btn["command"] = lambda: self.addCity(self.city_ent.get())
         
-        # Right Delete Button
-        self.delete_btn = ttk.Button(self.frame, text='Clear')
+        # Delete Button
+        self.delete_btn = ttk.Button(self, text="Delete")
         self.delete_btn.grid(row=1, column=3)
-        self.delete_btn['command'] = lambda: self.delete()        
+        self.delete_btn["command"] = lambda: self.deleteCity()        
 
-        # Left Reset Button
-        self.reset_btn = ttk.Button(self.frame, text='Reset')
+        # Reset Button
+        self.reset_btn = ttk.Button(self, text="Reset")
         self.reset_btn.grid(row=2, column=0)
-        self.reset_btn['command'] = lambda: self.reset_app()
+        self.reset_btn["command"] = lambda: self.resetApp()
 
-        # Left Create Button
-        self.create_btn = ttk.Button(self.frame, text='Create')
+        # Create Button
+        self.create_btn = ttk.Button(self, text="Create")
         self.create_btn.grid(row=2, column=1)
-        self.create_btn['command'] = lambda: self.create_txt()        
+        self.create_btn["command"] = lambda: self.createTXT()        
 
-        # Right Listbox
-        self.city_lbx = tk.Listbox(self.frame)
+        # Listbox
+        self.city_lbx = tk.Listbox(self)
         self.city_lbx.grid(row=2, column=2, columnspan=2)
+        
+        # Directory Button
+        self.dir_btn = ttk.Button(self, text="Select Folder")
+        self.dir_btn.grid(row=3, column=0)
+        self.dir_btn["command"] = lambda: self.getDir()
 
-        # Right Clear Button
-        self.clear_btn = ttk.Button(self.frame, text='Clear')
+        # Directory Label
+        self.dir_lbl = ttk.Label(self, text="No Folder Selected")
+        self.dir_lbl.grid(row=3, column=1)        
+
+        # Clear Button
+        self.clear_btn = ttk.Button(self, text="Clear")
         self.clear_btn.grid(row=3, column=3)
-        self.clear_btn['command'] = lambda: self.clear()
+        self.clear_btn["command"] = lambda: self.clearCities()
 
-    def add_city(self, city):
-        #self.city_lbx.insert(END, item)        
-        pass
+    def addCity(self, city):
+        """From entry add city to listbox."""
+        if city:
+            self.city_lbx.insert(0, str(city).strip())
+            self.city_ent.delete(0, "end")
+            self.city_ent.focus()
 
-    def create_txt(self):
-        pass
+    def phraseMaker(self):
+        """Replaces desired word in phrase with each city."""
+        phrase_lst = []
+        phrase = str(self.phrase_ent.get())
+        keyword = str(self.keyword_ent.get())
+        for i in range(self.city_lbx.size()):
+            city = str(self.city_lbx.get(i))
+            new_phrase = re.sub(keyword, city, phrase)
+            phrase_lst.append(new_phrase)
+        return phrase_lst
 
-    def clear(self):
-        pass
+    def createTXT(self):
+        """Creates txt file containing all of the desired phrases."""
+        now = dt.datetime.now().strftime("%Y_%m_%d %H_%M_%S")
+        try:
+            desired_list = self.phraseMaker()
+            with open(f"{self.folder}/{now}.txt", "w") as f:
+                for i in desired_list:
+                    f.write(f"{i}\n")
 
-    def reset_app(self):
-        pass
+        except Exception as e:
+            self.dir_lbl["text"] = e
 
-    def delete(self):
-        pass    
+    def clearCities(self):
+        """Removes all city entries from listbox."""
+        self.city_lbx.delete(0, "end")
+
+    def resetApp(self):
+        """Restarts the current program.
+        Note: this function does not return. Any cleanup action (like
+        saving data) must be done before calling this function."""
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
+
+    def deleteCity(self):
+        """Remove last city entry from listbox."""
+        self.city_lbx.delete(0)
+
+    def getDir(self):
+        """Get specified directory from user."""
+        self.folder = filedialog.askdirectory()
+        self.dir_lbl["text"] = self.folder
 
     def run(self):
-        self.root.mainloop()
-
-
-
-# def main():
-#     city = City()
-
-
-#     cities = []
-
-#     # The Entry box, into which the user can enter a temperature.
-#     # We store it in the Temperature object so that we can later
-#     # get its contents.
-#     city_entry = ttk.Entry(frame, width=8)
-#     city_entry.grid()
-
-
-# def add_city(City):
-#     entry = city.entry_for_temperature
-#     contents_of_entry_box = entry.get()
-
-    
-
-#     # Convert that STRING to a floating point NUMBER.
-#     # Use the number to compute the corresponding Celsius temperature.
-#     fahrenheit = float(contents_of_entry_box)
-#     celsius = (5 / 9) * (fahrenheit - 32)
-
-#     # Display the computed Celsius temperature in the Label
-#     # provided for it.
-#     format_string = '{:0.2f} Fahrenheit is {:0.2f} Celsius'
-#     answer = format_string.format(fahrenheit, celsius)
-#     temperature.label_for_temperature['text'] = answer
-
+        """Runs the app."""
+        self.mainloop()
 
 
 app = App()
