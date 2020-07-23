@@ -13,18 +13,19 @@ from tkinter import filedialog
 import re
 
 
-class App (ttk.Frame):
+class FirstFrame(tk.Frame):
     def __init__(self, master=None):
         """On Start."""
         ttk.Frame.__init__(self, master=None, padding=20)
         self.grid()
         self.createWidgets()
+        self.bindKeys()       
 
     def createWidgets(self):
         """Creates the GUI with grid."""
 
         # Phrase Label
-        self.phrase_lbl = ttk.Label(self, text="Phrase:", style="TLabel")
+        self.phrase_lbl = ttk.Label(self, text="Phrase:")
         self.phrase_lbl.grid(row=0, column=0)
 
         # Phrase Entry
@@ -78,12 +79,25 @@ class App (ttk.Frame):
 
         # Directory Label
         self.dir_lbl = ttk.Label(self, text="No Folder Selected")
-        self.dir_lbl.grid(row=3, column=1)        
+        self.dir_lbl.grid(row=3, column=1)
+
+        # Status Label
+        self.stat_lbl = ttk.Label(self, text="")
+        self.stat_lbl.grid(row=3, column=2)          
 
         # Clear Button
         self.clear_btn = ttk.Button(self, text="Clear")
         self.clear_btn.grid(row=3, column=3)
         self.clear_btn["command"] = lambda: self.clearCities()
+
+    def bindKeys(self):
+        # if self.focus_get() == self.phrase_ent:
+        #     print(self.focus_get())
+        # else:
+        #     print("no focus")
+        # print(self.focus_get())
+        self.bind("<Return>", lambda: print(self.focus_get()))
+        #self.bind("<Return>", )        
 
     def addCity(self, city):
         """From entry add city to listbox."""
@@ -105,13 +119,18 @@ class App (ttk.Frame):
 
     def createTXT(self):
         """Creates txt file containing all of the desired phrases."""
-        now = dt.datetime.now().strftime("%Y_%m_%d %H_%M_%S")
+        now = dt.datetime.now().strftime("%m-%d %H-%M")
+        self.filename = "bwcca_tags " + now
         try:
-            desired_list = self.phraseMaker()
-            with open(f"{self.folder}/{now}.txt", "w") as f:
-                for i in desired_list:
-                    f.write(f"{i}\n")
-
+            if "/" in self.dir_lbl["text"]:
+                desired_list = self.phraseMaker()
+                with open(f"{self.folder}/{self.filename}.txt", "w") as f:
+                    for i in desired_list:
+                        f.write(f"{i}\n")
+                self.stat_lbl["text"] = f"/{self.filename} created!"
+            else:
+                self.dir_lbl["text"] = "Select a folder!"
+                self.dir_btn.focus()
         except Exception as e:
             self.dir_lbl["text"] = e
 
@@ -135,10 +154,19 @@ class App (ttk.Frame):
         self.folder = filedialog.askdirectory()
         self.dir_lbl["text"] = self.folder
 
-    def run(self):
-        """Runs the app."""
-        self.mainloop()
+    def enterEvent(self, event):
+        focus = str(self.focus_get())
+        print(focus)
+        if "entry2" in focus:
+            self.addCity(self.city_ent.get())
+        elif "entry3" or "button5" in focus:
+            self.createTXT()
+        else:
+            self.keyword_ent.focus()
 
-
-app = App()
-app.run()
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("Skys Word App")
+    app = FirstFrame(root)
+    root.bind("<Return>", lambda e: app.enterEvent(e))
+    root.mainloop()
